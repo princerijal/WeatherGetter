@@ -2,10 +2,10 @@ package com.example.myapplication.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val DarkBlue = Color(0xFF00264D) // Replace Purple80
+val SkyBlue = Color(0xFF00B0F0)  // Replace PurpleGrey80
+val Orange = Color(0xFFF58733)   // Replace Pink80
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val DarkBlueLight = Color(0xFF001B33) // Adjust for Purple40 if lighter version needed
+val SkyBlueLight = Color(0xFF0096CC)  // Adjust for PurpleGrey40 if lighter version needed
+val OrangeLight = Color(0xFFCC6A2A)   // Adjust for Pink40 if lighter version needed

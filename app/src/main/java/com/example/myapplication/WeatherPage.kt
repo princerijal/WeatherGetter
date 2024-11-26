@@ -153,8 +153,7 @@ fun WeatherDetails(data: WeatherModel) {
         )
 
         Spacer(modifier = Modifier.height(20.dp))
-        Card{
-            Column(
+        Column(
                modifier = Modifier.fillMaxWidth()
             ){
                 Row(
@@ -194,7 +193,7 @@ fun WeatherDetails(data: WeatherModel) {
     }
 
 
-}
+
 
 @Composable
 fun WeatherValues(value : String, key : String){
