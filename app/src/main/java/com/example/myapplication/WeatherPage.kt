@@ -39,7 +39,9 @@ import com.example.myapplication.api.WeatherModel
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
 
 
@@ -50,56 +52,82 @@ fun WeatherPage(
     viewModel: WeatherViewModel,
     modifier: Modifier = Modifier
 ) {
-    // Creating a column for the search bar
     var city: String by remember { mutableStateOf("") }
-
     val weatherResult = viewModel.weatherResult.observeAsState()
 
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(9.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(9.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            OutlinedTextField(
-                modifier = Modifier.weight(1f),
-                value = city,
-                onValueChange = { city = it },
-                label = { Text(text = "Search the Location") }
-            )
-
-            IconButton(onClick = {
-                viewModel.getData(city)
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search for any Location"
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "WeatherGetter",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                navigationIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.logo), // Replace with your logo
+                        contentDescription = "App Logo",
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(32.dp)
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Blue, // Background color
+                    titleContentColor = Color.White, // Title text color
+                    navigationIconContentColor = Color.White // Icon color
                 )
-            }
+            )
         }
+    ) { innerPadding ->
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(innerPadding)
+                .padding(9.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(9.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier.weight(1f),
+                    value = city,
+                    onValueChange = { city = it },
+                    label = { Text(text = "Search the Location") }
+                )
 
-        when (val result = weatherResult.value) {
-            is NetworkResponse.Error -> {
-                Text(text = "Error: ${result.message}")
+                IconButton(onClick = {
+                    viewModel.getData(city)
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search for any Location"
+                    )
+                }
             }
 
-            NetworkResponse.Loading -> {
-                CircularProgressIndicator()
-            }
+            when (val result = weatherResult.value) {
+                is NetworkResponse.Error -> {
+                    Text(text = "Error: ${result.message}")
+                }
 
-            is NetworkResponse.Success -> {
-                WeatherDetails(data = result.data)
-            }
+                NetworkResponse.Loading -> {
+                    CircularProgressIndicator()
+                }
 
-            null -> {}
+                is NetworkResponse.Success -> {
+                    WeatherDetails(data = result.data)
+                }
+
+                null -> {}
+            }
         }
     }
 }
@@ -138,7 +166,7 @@ fun WeatherDetails(data: WeatherModel) {
             // Corrected the property name
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
-        
+
         AsyncImage(
             model = "https:${data.current.condition.icon}",
             contentDescription = "Icon for weather condition",
@@ -153,16 +181,17 @@ fun WeatherDetails(data: WeatherModel) {
         )
 
         Spacer(modifier = Modifier.height(20.dp))
-        Column(
-               modifier = Modifier.fillMaxWidth()
+        Card{
+            Column(
+                modifier = Modifier.fillMaxWidth()
             ){
                 Row(
-                   modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ){
 
-                        WeatherValues(data.current.wind_kph, "Wind Speed")
-                        WeatherValues(data.current.humidity, "Humidity")
+                    WeatherValues(data.current.wind_kph, "Wind Speed")
+                    WeatherValues(data.current.humidity, "Humidity")
 
 
                 }
@@ -193,7 +222,7 @@ fun WeatherDetails(data: WeatherModel) {
     }
 
 
-
+}
 
 @Composable
 fun WeatherValues(value : String, key : String){
@@ -205,5 +234,4 @@ fun WeatherValues(value : String, key : String){
         Text(text = value, fontWeight = FontWeight.Bold, fontSize = 26.sp)
     }
 }
-
 
