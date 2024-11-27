@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
@@ -43,10 +45,12 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AppNavigation() {
         val weatherView = ViewModelProvider(this)[WeatherViewModel::class.java]
+        val context = LocalContext.current
+        val locationUtils = LocationUtils(context)
         val navController = rememberNavController()
         NavHost(navController = navController, startDestination = "splash") {
             composable("splash") { SplashScreen(navController) }
-            composable("main") { WeatherPage(weatherView) }
+            composable("main") { WeatherPage(weatherView, locationUtils, context) }
         }
     }
 
@@ -69,4 +73,6 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
+
+
 }

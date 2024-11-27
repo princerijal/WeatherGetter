@@ -1,6 +1,10 @@
 package com.example.myapplication
 
+import android.app.Instrumentation.ActivityResult
+import android.content.Context
 import android.text.style.BackgroundColorSpan
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,17 +47,51 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
-
+import android.Manifest
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherPage(
     viewModel: WeatherViewModel,
+    locationUtils: LocationUtils,
+    context: Context,
     modifier: Modifier = Modifier
 ) {
     var city: String by remember { mutableStateOf("") }
     val weatherResult = viewModel.weatherResult.observeAsState()
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = {
+            permissions ->
+            if(permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+                && permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true){
+                // Permission granted,  can now use the location
+            }else{
+                // Ask For permission
+                val rationalRequired = ActivityCompat.shouldShowRequestPermissionRationale(
+                    context as MainActivity,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+
+                ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                    context as MainActivity,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+
+                if(rationalRequired){
+                    Toast.makeText(context, "Location Permission is required to use current location"
+                    , Toast.LENGTH_SHORT).show()
+                }else{
+                    Toast.makeText(context, "Please change the location permission from settings"
+                    , Toast.LENGTH_SHORT).show()
+                }
+
+
+            }
+        }
+    )
 
     Scaffold(
         topBar = {
@@ -110,6 +148,29 @@ fun WeatherPage(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search for any Location"
                     )
+                }
+                IconButton(onClick = {
+                    if(locationUtils.hasLocationPermission(context)){
+                        // Permission already granted
+
+
+                    }else{
+                        // Request the permission
+                        requestPermissionLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            )
+                        )
+
+                    }
+
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Button For Current Location"
+                    )
+
                 }
             }
 
