@@ -46,11 +46,13 @@ class MainActivity : ComponentActivity() {
     fun AppNavigation() {
         val weatherView = ViewModelProvider(this)[WeatherViewModel::class.java]
         val context = LocalContext.current
+
         val locationUtils = LocationUtils(context)
+
         val navController = rememberNavController()
         NavHost(navController = navController, startDestination = "splash") {
             composable("splash") { SplashScreen(navController) }
-            composable("main") { WeatherPage(weatherView, locationUtils, context) }
+            composable("main") { WeatherPage(weatherView, locationUtils, context, lViewModel = LocationViewModel()) }
         }
     }
 

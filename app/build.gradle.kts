@@ -60,7 +60,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation (libs.play.services.location.v2101)
     implementation (libs.google.accompanist.permissions) // Check for the latest version
-    implementation (libs.google.accompanist.permissions) // Check for the latest version"com.google.accompanist:accompanist-permissions:0.28.0" // Replace with the latest version
+    implementation (libs.google.accompanist.permissions)
+    implementation(libs.play.services.maps)
 
 
 

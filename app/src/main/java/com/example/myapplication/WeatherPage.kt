@@ -58,9 +58,14 @@ fun WeatherPage(
     viewModel: WeatherViewModel,
     locationUtils: LocationUtils,
     context: Context,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    lViewModel : LocationViewModel
 ) {
+    var location = lViewModel.location.value
     var city: String by remember { mutableStateOf("") }
+    val address = location?.let{ locationUtils.reverseGeocodeLocation(location!!) }
+    city = address ?: ""
+
     val weatherResult = viewModel.weatherResult.observeAsState()
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
@@ -69,6 +74,8 @@ fun WeatherPage(
             if(permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
                 && permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true){
                 // Permission granted,  can now use the location
+                locationUtils.requestLocationUpdates(lViewModel)
+
             }else{
                 // Ask For permission
                 val rationalRequired = ActivityCompat.shouldShowRequestPermissionRationale(
@@ -152,6 +159,11 @@ fun WeatherPage(
                 IconButton(onClick = {
                     if(locationUtils.hasLocationPermission(context)){
                         // Permission already granted
+                        locationUtils.requestLocationUpdates(lViewModel)
+                        location = lViewModel.location.value
+                        city = address ?: ""
+
+
 
 
                     }else{

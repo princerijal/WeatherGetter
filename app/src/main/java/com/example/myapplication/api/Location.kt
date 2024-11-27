@@ -8,5 +8,6 @@ data class Location(
     val lon: String,
     val name: String,
     val region: String,
-    val tz_id: String
+    val tz_id: String,
+    val city: String
 )
