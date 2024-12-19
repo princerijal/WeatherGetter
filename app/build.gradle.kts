@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
 }
 
 android {
@@ -62,6 +63,9 @@ dependencies {
     implementation (libs.google.accompanist.permissions) // Check for the latest version
     implementation (libs.google.accompanist.permissions)
     implementation(libs.play.services.maps)
+    implementation (libs.androidx.runtime.livedata.v151) // Adjust version as needed
+    implementation (libs.androidx.room.runtime)
+   
 
 
 

@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import WeatherDatabaseHelper
 import android.app.Instrumentation.ActivityResult
 import android.content.Context
 import android.text.style.BackgroundColorSpan
@@ -49,6 +50,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
 import android.Manifest
 import android.widget.Toast
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.core.app.ActivityCompat
 
 
@@ -166,6 +170,7 @@ fun WeatherPage(
 
 
 
+
                     }else{
                         // Request the permission
                         requestPermissionLauncher.launch(
@@ -196,7 +201,10 @@ fun WeatherPage(
                 }
 
                 is NetworkResponse.Success -> {
-                    WeatherDetails(data = result.data)
+                    WeatherDetails(
+                        data = result.data,
+                        context = context
+                    )
                 }
 
                 null -> {}
@@ -206,95 +214,127 @@ fun WeatherPage(
 }
 
 @Composable
-fun WeatherDetails(data: WeatherModel) {
+fun WeatherDetails(data: WeatherModel, context: Context) {
+
+
+
+    val dbHelper = WeatherDatabaseHelper(context) // SQLite database helper instance
+
+    // Add vertical scrolling
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 9.dp),
+            .padding(vertical = 9.dp)
+            .verticalScroll(rememberScrollState()), // Enable scrolling
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Location Section
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 9.dp),
-            verticalAlignment = Alignment.Bottom,
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
             Icon(
                 imageVector = Icons.Default.LocationOn,
-                contentDescription = "Icon for location",
+                contentDescription = "Location Icon",
                 modifier = Modifier.size(50.dp)
             )
-            Text(text = data.location.name, fontSize = 30.sp)
-
-            Text(text = ", ${data.location.country}", fontSize = 30.sp)
+            Text(
+                text = "${data.location.name}, ${data.location.country}",
+                fontSize = 30.sp
+            )
         }
 
-        Spacer(modifier = Modifier.height(20.dp)) // Adjusted height
+        Spacer(modifier = Modifier.height(20.dp))
 
+        // Temperature Section
         Text(
             text = "${data.current.temp_c} °C",
             fontSize = 70.sp,
             fontWeight = FontWeight.Bold,
-            // Corrected the property name
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            color = Color.Black
         )
 
+        // Weather Icon
         AsyncImage(
             model = "https:${data.current.condition.icon}",
-            contentDescription = "Icon for weather condition",
+            contentDescription = "Weather Icon",
             modifier = Modifier.size(100.dp)
         )
 
+        // Weather Condition Text
         Text(
             text = data.current.condition.text,
             fontSize = 30.sp,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
             color = Color.Gray
         )
 
         Spacer(modifier = Modifier.height(20.dp))
-        Card{
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ){
+
+        // Weather Info Card
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                // Row 1: Wind Speed and Humidity
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
-                ){
-
+                ) {
                     WeatherValues(data.current.wind_kph, "Wind Speed")
                     WeatherValues(data.current.humidity, "Humidity")
-
-
                 }
+
+                // Row 2: Cloud and Feels Like
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
-                ){
-
+                ) {
                     WeatherValues(data.current.cloud, "Cloud Percentage")
-                    WeatherValues(data.current.feelslike_c, "FeelS Like ")
-
-
+                    WeatherValues(data.current.feelslike_c, "Feels Like")
                 }
+
+                // Row 3: Local Date and Time
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
-                ){
-
-                    WeatherValues(data.location.localtime.split(" ")[0], "Local Date")
-                    WeatherValues(data.location.localtime.split(" ")[1], "Local Time")
-
-
+                ) {
+                    val (date, time) = data.location.localtime.split(" ")
+                    WeatherValues(date, "Local Date")
+                    WeatherValues(time, "Local Time")
                 }
-
             }
         }
 
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Save Weather Button
+        Button(
+            onClick = {
+                val id = dbHelper.insertWeather(
+                    location = data.location.name,
+                    country = data.location.country,
+                    temperature = "${data.current.temp_c} °C",
+                    condition = data.current.condition.text,
+                    iconUrl = "https:${data.current.condition.icon}"
+                )
+                if (id > 0) {
+                    Toast.makeText(context, "Weather saved successfully!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Failed to save weather.", Toast.LENGTH_SHORT).show()
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Text(text = "Save Weather")
+        }
     }
-
-
 }
 
 @Composable
